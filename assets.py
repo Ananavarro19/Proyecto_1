@@ -18,7 +18,7 @@ st.write("Upload the Asset and Employee Excel files (both files are required).")
 uploaded_files = st.file_uploader("Choose the Asset and Employee files", type=["xlsx"], accept_multiple_files=True)
 
 # Función para conectar y realizar la inserción en la base de datos en bloque
-def insert_assets_in_bulk(df, table_name='assets'):
+def insert_assets_in_bulk(df, table_name='asignacion'):
     connection = None
     cursor = None
 
@@ -36,8 +36,8 @@ def insert_assets_in_bulk(df, table_name='assets'):
 
             # Preparar la consulta de inserción
             insert_query = f"""
-            INSERT INTO {table_name} (asset_id, asset_name, employee_id, employee_name, employee_position)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO {table_name} (name, document, type, serial)
+            VALUES (%s, %s, %s, %s)
             """
 
             # Convertir DataFrame a una lista de tuplas para ejecutar la inserción en bloque
@@ -86,7 +86,7 @@ if len(uploaded_files) == 2:
 
         # Seleccionar columnas relevantes para mostrar
         df_final = df_combined[['NOMBRE', 'DOCUMENTO', 'TIPO', 'SERIAL']]
-        df_final.columns = ['NOMBRE EMPLEADO', 'DOCUMENTO', 'TIPO', 'SERIAL']
+        df_final.columns = ['NOMBRE_EMPLEADO', 'DOCUMENTO', 'TIPO', 'SERIAL']
 
         # Mostrar el DataFrame final combinado
         st.write("Combined content:")
