@@ -9,16 +9,16 @@ import os
 load_dotenv()
 
 # Título de la aplicación
-st.title('Upload and Merge Patient and Responsible Party Files')
+st.title('Upload and Merge Asset and Employee Files')
 
 # Instrucciones
-st.write("Upload the Patient and Responsible Party files (both files are required).")
+st.write("Upload the Asset and Employee Excel files (both files are required).")
 
-# Subir ambos archivos de Excel al mismo tiempo
-uploaded_files = st.file_uploader("Choose the Patient and Responsible Party files", type=["xlsx"], accept_multiple_files=True)
+# Subir dos archivos de Excel
+uploaded_files = st.file_uploader("Choose the Asset and Employee files", type=["xlsx"], accept_multiple_files=True)
 
 # Función para conectar y realizar la inserción en la base de datos en bloque
-def insert_patients_in_bulk(df, table_name='pacientes_responsables'):
+def insert_assets_in_bulk(df, table_name='assets'):
     connection = None
     cursor = None
 
@@ -36,15 +36,15 @@ def insert_patients_in_bulk(df, table_name='pacientes_responsables'):
 
             # Preparar la consulta de inserción
             insert_query = f"""
-            INSERT INTO {table_name} (nombre_paciente, apellido_paciente, diagnostico, responsable, parentesco)
+            INSERT INTO {table_name} (asset_id, asset_name, employee_id, employee_name, employee_position)
             VALUES (%s, %s, %s, %s, %s)
             """
 
             # Convertir DataFrame a una lista de tuplas para ejecutar la inserción en bloque
-            patients_data = df.to_records(index=False).tolist()
+            assets_data = df.to_records(index=False).tolist()
 
             # Ejecutar la consulta de inserción en bloque
-            cursor.executemany(insert_query, patients_data)
+            cursor.executemany(insert_query, assets_data)
             
             # Confirmar la transacción
             connection.commit()
@@ -70,23 +70,23 @@ if len(uploaded_files) == 2:
         file2 = uploaded_files[1]
 
         # Leer ambos archivos de Excel y almacenarlos en DataFrames
-        df_pacientes = pd.read_excel(file1)
-        df_responsables = pd.read_excel(file2)
+        df_assets = pd.read_excel(file1,)
+        df_employees = pd.read_excel(file2,)
         
         # Mostrar mensaje de éxito al cargar los archivos
         st.success('Both files were uploaded successfully!')
         
-        st.write("Patients:")
-        st.dataframe(df_pacientes)
-        st.write("Responsible Parties:")
-        st.dataframe(df_responsables)
+        st.write("Assets Data:")
+        st.dataframe(df_assets)
+        st.write("Employees Data:")
+        st.dataframe(df_employees)
 
-        # Combinar los DataFrames en base a la columna "Responsable" del archivo de pacientes
-        df_combined = pd.merge(df_pacientes, df_responsables, left_on="Responsable", right_on="Nombre", how="inner")
+        # Combinar los DataFrames en base a la columna "employee_id" del archivo de activos
+        df_combined = pd.merge(df_assets, df_employees, left_on="RESPONSABLE", right_on="DOCUMENTO", how="inner")
 
         # Seleccionar columnas relevantes para mostrar
-        df_final = df_combined[['Nombre_x', 'Apellido_x', 'Diagnóstico', 'Responsable', 'Parentesco']]
-        df_final.columns = ['Patient Name', 'Patient Last Name', 'Diagnosis', 'Responsible', 'Relationship']
+        df_final = df_combined[['NOMBRE', 'DOCUMENTO', 'TIPO', 'SERIAL']]
+        df_final.columns = ['NOMBRE EMPLEADO', 'DOCUMENTO', 'TIPO', 'SERIAL']
 
         # Mostrar el DataFrame final combinado
         st.write("Combined content:")
@@ -94,10 +94,10 @@ if len(uploaded_files) == 2:
 
         # Botón para guardar los datos en la base de datos
         if st.button('Save to Database'):
-            insert_patients_in_bulk(df_final)
+            insert_assets_in_bulk(df_final)
     
     except Exception as e:
         st.error(f"Error processing the Excel files: {e}")
 
 else:
-    st.warning("Please upload exactly two Excel files.")
+    st.warning("Please upload exactly two Excel files.")
