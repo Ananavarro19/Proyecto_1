@@ -12,7 +12,7 @@ app_ui.write("Upload the Asset and Employee Excel files (both files are required
 
 uploaded_excel_files = app_ui.file_uploader("Choose the Asset and Employee files", type=["xlsx"], accept_multiple_files=True)
 
-def batch_insert_assets(asset_data, table='asset_assignment'):
+def batch_insert_assets(asset_data, table='asignacion'):
     db_connection = None
     sql_cursor = None
 
